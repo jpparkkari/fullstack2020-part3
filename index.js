@@ -4,8 +4,7 @@ const app = express()
 app.use(express.json())
 
 let persons = [
-    {
-        "persons": [
+ 
           {
             "name": "Arto Hellas",
             "number": "040-123456",
@@ -27,12 +26,20 @@ let persons = [
             "id": 4
           }
         ]
-    }]
+    
 
 //getall
 app.get('/api/persons', (req, res) => {
     res.json(persons)
   })
+app.get('/info', (req, res) => {
+    console.log(persons.length)
+    const date = new Date()
+    res.send(`
+        <p>Phonebook has info for ${persons.length} persons</p>
+        <p>${date}</p>
+        `)
+})
 
 const PORT = 3001
 
