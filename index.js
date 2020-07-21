@@ -1,3 +1,4 @@
+require('dotenv').config()
 const express = require('express')
 const app = express()
 const morgan = require('morgan')
@@ -7,7 +8,7 @@ app.use(cors())
 app.use(express.json())
 app.use(express.static('build'))
 
-let persons = [
+/* let persons = [
  
           {
             "name": "Arto Hellas",
@@ -30,16 +31,22 @@ let persons = [
             "id": 4
           }
         ]
-    
+  */  
 
 morgan.token('message', function (req, res) { return JSON.stringify(req.body) })
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :message'))
 //app.use(morgan('tiny'))
 
+const Person = require('./models/person')
+
 //getall
 app.get('/api/persons', (req, res) => {
-    res.json(persons)
+    Person.find({}).then(people => {
+      res.json(people)
   })
+    //res.json(persons)
+})
+
 app.get('/info', (req, res) => {
     console.log(persons.length)
     const date = new Date()
@@ -78,23 +85,29 @@ app.post('/api/persons', (req, res) => {
       error: 'name, number or both missing'
     })
   }
-
+  /* not needed to check duplicates in 3.13
   if(persons.find( person => person.name === body.name)) {
     return res.status(400).json({
       error: 'name must be unique'
     })
   }
+  */
 
-  const person = {
+  const person = new Person({
     name: body.name,
     number: body.number,
-    id: generateId(),
-  }
+    //id: generateId(),
+  })
 
   console.log(person)
+  person.save().then(savedPerson => {
+    res.json(savedPerson)
+  })
+  /*
   persons = persons.concat(person)
   console.log(persons)
   res.json(person)
+  */
 })
 
 const PORT = process.env.PORT || 3001
